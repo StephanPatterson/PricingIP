@@ -1,0 +1,365 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3819AC7D2721FEBD00FD0F8F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3819AC7C2721FEBD00FD0F8F /* main.cpp */; };
+		3819AC852721FEFF00FD0F8F /* SuppPt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3819AC832721FEFE00FD0F8F /* SuppPt.cpp */; };
+		3819AC882721FF3200FD0F8F /* libgurobi_g++4.2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3819AC872721FF2500FD0F8F /* libgurobi_g++4.2.a */; };
+		3819AC8A2721FF3F00FD0F8F /* libgurobi80.so in Frameworks */ = {isa = PBXBuildFile; fileRef = 3819AC892721FF3F00FD0F8F /* libgurobi80.so */; };
+		3819AC8B2721FF3F00FD0F8F /* libgurobi80.so in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 3819AC892721FF3F00FD0F8F /* libgurobi80.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		38D386792833F81600BBFD0F /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38D386772833F81600BBFD0F /* Node.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		38169D11285FC44C00FD4127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 38169D0D285FC44B00FD4127 /* IP_BB_OnGithub.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 38169D03285FC44B00FD4127;
+			remoteInfo = IP_BB_OnGithub;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3819AC772721FEBD00FD0F8F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		3819AC8C2721FF3F00FD0F8F /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3819AC8B2721FF3F00FD0F8F /* libgurobi80.so in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		38169D0D285FC44B00FD4127 /* IP_BB_OnGithub.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = IP_BB_OnGithub.xcodeproj; path = "../../../Documents/GitHub/IP-Pricing/IP_BB_OnGithub/IP_BB_OnGithub.xcodeproj"; sourceTree = "<group>"; };
+		3819AC792721FEBD00FD0F8F /* PricingIP */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PricingIP; sourceTree = BUILT_PRODUCTS_DIR; };
+		3819AC7C2721FEBD00FD0F8F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3819AC832721FEFE00FD0F8F /* SuppPt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SuppPt.cpp; path = ../../../Barycenter/OriginalGrid/OriginalGrid/SuppPt.cpp; sourceTree = "<group>"; };
+		3819AC842721FEFF00FD0F8F /* SuppPt.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SuppPt.hpp; path = ../../../Barycenter/OriginalGrid/OriginalGrid/SuppPt.hpp; sourceTree = "<group>"; };
+		3819AC872721FF2500FD0F8F /* libgurobi_g++4.2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgurobi_g++4.2.a"; path = "../../../../../Library/gurobi801/mac64/lib/libgurobi_g++4.2.a"; sourceTree = "<group>"; };
+		3819AC892721FF3F00FD0F8F /* libgurobi80.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgurobi80.so; path = ../../../../../Library/gurobi801/mac64/lib/libgurobi80.so; sourceTree = "<group>"; };
+		38D386772833F81600BBFD0F /* Node.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../PricingIP_BB/Node.cpp; sourceTree = "<group>"; };
+		38D386782833F81600BBFD0F /* Node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Node.hpp; path = ../../PricingIP_BB/Node.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3819AC762721FEBD00FD0F8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3819AC882721FF3200FD0F8F /* libgurobi_g++4.2.a in Frameworks */,
+				3819AC8A2721FF3F00FD0F8F /* libgurobi80.so in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		38169D0E285FC44B00FD4127 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				38169D12285FC44C00FD4127 /* IP_BB_OnGithub */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3819AC702721FEBD00FD0F8F = {
+			isa = PBXGroup;
+			children = (
+				38169D0D285FC44B00FD4127 /* IP_BB_OnGithub.xcodeproj */,
+				3819AC7B2721FEBD00FD0F8F /* PricingIP */,
+				3819AC7A2721FEBD00FD0F8F /* Products */,
+				3819AC862721FF2500FD0F8F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		3819AC7A2721FEBD00FD0F8F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3819AC792721FEBD00FD0F8F /* PricingIP */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3819AC7B2721FEBD00FD0F8F /* PricingIP */ = {
+			isa = PBXGroup;
+			children = (
+				3819AC7C2721FEBD00FD0F8F /* main.cpp */,
+				38D386772833F81600BBFD0F /* Node.cpp */,
+				38D386782833F81600BBFD0F /* Node.hpp */,
+				3819AC832721FEFE00FD0F8F /* SuppPt.cpp */,
+				3819AC842721FEFF00FD0F8F /* SuppPt.hpp */,
+			);
+			path = PricingIP;
+			sourceTree = "<group>";
+		};
+		3819AC862721FF2500FD0F8F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3819AC892721FF3F00FD0F8F /* libgurobi80.so */,
+				3819AC872721FF2500FD0F8F /* libgurobi_g++4.2.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3819AC782721FEBD00FD0F8F /* PricingIP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3819AC802721FEBD00FD0F8F /* Build configuration list for PBXNativeTarget "PricingIP" */;
+			buildPhases = (
+				3819AC752721FEBD00FD0F8F /* Sources */,
+				3819AC762721FEBD00FD0F8F /* Frameworks */,
+				3819AC772721FEBD00FD0F8F /* CopyFiles */,
+				3819AC8C2721FF3F00FD0F8F /* Embed Libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PricingIP;
+			productName = PricingIP;
+			productReference = 3819AC792721FEBD00FD0F8F /* PricingIP */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3819AC712721FEBD00FD0F8F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1300;
+				TargetAttributes = {
+					3819AC782721FEBD00FD0F8F = {
+						CreatedOnToolsVersion = 13.0;
+					};
+				};
+			};
+			buildConfigurationList = 3819AC742721FEBD00FD0F8F /* Build configuration list for PBXProject "PricingIP" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 3819AC702721FEBD00FD0F8F;
+			productRefGroup = 3819AC7A2721FEBD00FD0F8F /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 38169D0E285FC44B00FD4127 /* Products */;
+					ProjectRef = 38169D0D285FC44B00FD4127 /* IP_BB_OnGithub.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3819AC782721FEBD00FD0F8F /* PricingIP */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		38169D12285FC44C00FD4127 /* IP_BB_OnGithub */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = IP_BB_OnGithub;
+			remoteRef = 38169D11285FC44C00FD4127 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3819AC752721FEBD00FD0F8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				38D386792833F81600BBFD0F /* Node.cpp in Sources */,
+				3819AC7D2721FEBD00FD0F8F /* main.cpp in Sources */,
+				3819AC852721FEFF00FD0F8F /* SuppPt.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3819AC7E2721FEBD00FD0F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		3819AC7F2721FEBD00FD0F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		3819AC812721FEBD00FD0F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/gurobi801/mac64/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3819AC822721FEBD00FD0F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/gurobi801/mac64/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3819AC742721FEBD00FD0F8F /* Build configuration list for PBXProject "PricingIP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3819AC7E2721FEBD00FD0F8F /* Debug */,
+				3819AC7F2721FEBD00FD0F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3819AC802721FEBD00FD0F8F /* Build configuration list for PBXNativeTarget "PricingIP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3819AC812721FEBD00FD0F8F /* Debug */,
+				3819AC822721FEBD00FD0F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3819AC712721FEBD00FD0F8F /* Project object */;
+}
