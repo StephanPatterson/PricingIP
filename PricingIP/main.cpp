@@ -30,6 +30,7 @@ int vmmult(const std::vector< std::vector<int> > &, const int , const long int ,
 std::vector<double> dualtotals(const double *const, const int, const long int, const int *, const int );
 int adjusttotals(std::vector<double> &, const double * const, const int, const long int, const int * const);
 int makegreedy(std::vector<SuppPt> &, std::vector<int> & , int *, const int &, std::vector<double> &, const long int &);
+double compute_c(const long int &, const int &, const int *, const std::vector< std::vector<SuppPt> > &, const long int &, const double *);
 
 int main(int argc, const char * argv[]) {
    
@@ -39,9 +40,11 @@ int main(int argc, const char * argv[]) {
    std::vector< std::time_t > pricingtimes;
 
    std::cout.precision(10);
-   int Pnum =4;//If NumMoMeas = 1, Number of months to process. Will go consecutively from start month, skipping any empty months.
-   std::string startmonth = "Jul";
-   int startyear = 15;
+   int Pnum =14;//If NumMoMeas = 1, Number of months to process. Will go consecutively from start month, skipping any empty months.
+   std::string startmonth = "Sep";
+   int startyear = 14;
+   bool namevars = 0;
+   bool checkcolfordup = 0;
 
    int NumMoMeas = 1;//Number of Months in a single Measure. Use 1 for original approach of each month is its own measure
    //Otherwise, Number of measures that will be created. Will combine NumMoMeas of months into each measure
@@ -50,16 +53,13 @@ int main(int argc, const char * argv[]) {
    
    int warmstart = 1; //If 1, the previous solution is saved and reintroduced before ->optimize()
    // This should be 1 for fastest running times
-   int pwarmstart = 0;
+   int pwarmstart = 1; //Separate warm-start toggle for modelprice->optimize.
    
    int Psnum[Pnum];
-   std::vector<SuppPt> Psupp;
-   //For the new LP, it makes more sense to have a two-indexed vector PsuppT instead of one long vector Psupp. Converting fully to PsuppT has not yet been implemented 12/15/21
-   std::vector< std::vector<SuppPt> > PsuppT(Pnum, std::vector< SuppPt > ((0)));
+   //For the new IP, it makes more sense to have a two-indexed vector PsuppT instead of one long vector Psupp.
+   std::vector< std::vector<SuppPt> > PsuppT(Pnum);
    int totalsupp = 0;
-   int startindices[Pnum];
    int indices[Pnum];
-   int endindices[Pnum];
    double lambda[Pnum];
 
    std::string temp;
@@ -68,8 +68,19 @@ int main(int argc, const char * argv[]) {
    std::ostringstream fname;
    int year;
    std::string month;
-   fname << "/Users/spatterson/ForXcode/Barycenter/DenverCrime2.csv";//File 2 has months with at least 2 murders only
-   indata.open(fname.str());
+   if (argc > 1)
+   {
+      fname << argv[1];
+      indata.open(fname.str());
+   }
+   else
+   {
+      std::cout << "Please enter filepath for DenverCrime file." << std::endl;
+      std::string filename;
+      getline( std::cin, filename);
+      indata.open(filename);
+   }
+
    if (!indata.good())
    {
       std::cout << "File not found." << std::endl;
@@ -101,61 +112,54 @@ int main(int argc, const char * argv[]) {
       if (indata.eof())
       {
          indata.close();
-         std::cout << "Invalid Input. End of file reached." << std::endl;
+         std::cout << "Invalid Input. End of file reached while searching for starting Month/Year." << std::endl;
          return 1;
       }
    }
    
    double loc1;
    double loc2;
-   indata >> loc1;
-   indata >> loc2;
+   indata >> loc1 >> loc2;
    std::string currentmonth = startmonth;
          
-   int tempind = 0;
    for (int i = 0; i < Pnum; ++i)
    {
       Psnum[i] = 0;
-      startindices[i] = totalsupp;
-      indices[i] = totalsupp;
+      indices[i] = 0;
       for (int j = 0; j < NumMoMeas; ++j)
       {
          while (month == currentmonth )
          {
             //adding shift so that all coordinates are positive
-            Psupp.push_back(SuppPt(loc1+115, loc2 , 1.0, totalsupp));
             PsuppT[i].push_back(SuppPt(loc1+115, loc2, 1.0,totalsupp));
-            ++tempind;
             ++Psnum[i];
             ++totalsupp;
                   
-            indata >> year;
-            indata >> month;
-            indata >> loc1;
-            indata >> loc2;
+            indata >> year >> month >> loc1 >> loc2;
             if (indata.eof())
             {
                indata.close();
-               std::cout << "Invalid Input. End of file reached." << std::endl;
+               std::cout << "Invalid Input. End of file reached while reading in months to measures." << std::endl;
                return 1;
             }
          }
          currentmonth = month;
       }
       std::cout << "Month measure: " << i+1 << " Size: " << Psnum[i] << std::endl;
+      
+      //Scale the masses for each month to sum to 1
       double totalmass = 0;
       for (int j = 0; j < Psnum[i]-1; ++j)
       {
-         Psupp[startindices[i]+j].mass /= Psnum[i];
-         totalmass += Psupp[startindices[i]+j].mass;
+         PsuppT[i][j].mass /= Psnum[i];
+         totalmass += PsuppT[i][j].mass;
       }
-      Psupp[totalsupp-1].mass = 1-totalmass;
+      PsuppT[i][Psnum[i]-1].mass = 1-totalmass;
       currentmonth = month;
-      endindices[i] = totalsupp-1;
    }
-   Psupp.resize(totalsupp);
    indata.close();
    
+   //Compute the weights for each month
    double sum = 0;
    for (int i = 0; i < Pnum-1; ++i)
    {
@@ -163,35 +167,6 @@ int main(int argc, const char * argv[]) {
       sum += lambda[i];
    }
    lambda[Pnum-1] = 1-sum;
-
-   
-   int index = 0;
-   // ensure P_i sum to exactly 1
-   std::vector<SuppPt>::iterator Psupptest = Psupp.begin();
-   for (int i = 0; i < Pnum; ++i)
-   {
-      validateDist(Psupptest, Psupptest+Psnum[i]);
-      Psupptest += Psnum[i];
-   }
-   
-   std::vector<SuppPt>::iterator Psuppit = Psupp.begin();
-/*   for (int j = 0; j < totalsupp; ++j)
-   {
-      Psuppit->combos = j;
-      ++Psuppit;
-   }
-   Psuppit = Psupp.begin();
-   
-   index= 0;
-   for (int i = 0; i < Pnum; ++i)
-   {
-      std::cout << "P: " <<i <<std::endl;
-      for (int k = 0; k < Psnum[i]; ++k)
-      {
-         std::cout << Psupp[index].combos <<std::endl;
-         ++index;
-      }
-   }*/
 
    //Calculate number of possible supp pts S0
    long int S0 = 1;
@@ -201,22 +176,12 @@ int main(int argc, const char * argv[]) {
    }
    std::cout << "Size of S0: " << S0 << std::endl;
    
-   //Copying Mass and Index information into the (new) 2-indexed support vector
-   //Check if this is still needed 5/18/22
-   tempind = 0;
-   for (int i = 0; i < Pnum; ++i)
+   std::vector<bool> colin;
+   if (checkcolfordup)
    {
-      for (int j = 0; j < Psnum[i]; ++j)
-      {
-         PsuppT[i][j].mass = Psupp[tempind].mass;
-         PsuppT[i][j].combos = Psupp[tempind].combos;
-//         std::cout << PsuppT[i][j] << " " << Psupp[tempind] <<std::endl;
-         ++tempind;
-      }
+      //For ensuring a column does not get added repeatedly
+      colin.resize(S0,false);
    }
-   
-   //vector for storing costs of combinations. Very large.
-   std::vector<double> c(S0,0);
 
    //Model for Master Problem
    GRBEnv* env = new GRBEnv();
@@ -224,144 +189,96 @@ int main(int argc, const char * argv[]) {
    model->set(GRB_IntParam_Method, 0);
    model->set(GRB_IntParam_Presolve, 0);
    model->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
-//   model->set(GRB_IntParam_OutputFlag, 0); //Turning off display on screen. Disable to see iterations, objective value, etc.
+   model->set(GRB_IntParam_OutputFlag, 0); //Turning off display on screen. Disable to see iterations, objective value, etc.
    
    std::vector< GRBVar > w;
    GRBLinExpr  exp[totalsupp];
+   std::vector<int> vbases;
+   double oldobj;
+   double newobj;
    
-   index = 0;
+   //Create a temporary copy of the set of support points, will be modified
+   std::vector< std::vector<SuppPt> >::iterator Psuppit = PsuppT.begin();
+   std::vector<std::vector<SuppPt> > Psupp2(Pnum);
+   std::copy(Psuppit, Psuppit+Pnum, Psupp2.begin() );
+   //Using index as a dummy variable for readability
+   int index = 0;
    
-   for (unsigned long int j = 0; j < S0; ++j)
+   while (Psupp2[0][Psnum[0]-1].mass >1e-15)
    {
+      //Find smallest remaining mass among support points of current combination
+      double minmass = 1;
+      for (int i = 0; i < Pnum; ++i)
+      {
+         if (Psupp2[i][indices[i]].mass < minmass)
+         {
+            minmass = Psupp2[i][indices[i]].mass;
+         }
+      }
+//      std::cout << "Minimum mass is " << minmass <<std::endl;
+      
+      //Index math based on Algorithm 1 in A Column Generation Approach to the Discrete Barycenter Problem
+      long int denom = S0;
+      int h = 0;
+      int index = 0;
+      
       double sum1 = 0;
       double sum2 = 0;
       for (int i = 0; i < Pnum; ++i)
       {
-         index = indices[i];
-         sum1 += lambda[i]*Psupp[index].loc1;
-         sum2 += lambda[i]*Psupp[index].loc2;
+         sum1 += lambda[i]*PsuppT[i][indices[i]].loc1;
+         sum2 += lambda[i]*PsuppT[i][indices[i]].loc2;
+
+         denom /= Psnum[i];
+         unsigned long int index2 = Psupp2[i][indices[i]].combos-index;
+         h += denom*index2; //computing h for later computation of cost c
+         index += Psnum[i];
+         Psupp2[i][indices[i]].mass -= minmass;
       }
-         
+      
+      //Create a variable for this combination
+      double newc = 0;
       SuppPt Pbar0 = SuppPt(sum1, sum2, 0.0);
       for (int i = 0; i < Pnum; ++i)
       {
-         index = indices[i];
-         c[j] += lambda[i]*((Pbar0.loc1-Psupp[index].loc1)*(Pbar0.loc1-Psupp[index].loc1) +(Pbar0.loc2-Psupp[index].loc2)*(Pbar0.loc2-Psupp[index].loc2));
-      }
-         
-      int k = Pnum-1;
-      if (indices[k] < endindices[k])
-      {
-         ++indices[k];
-      }
-      else
-      {
-         int temp = k-1;
-         while (temp >= 0)
-         {
-            if (indices[temp] == endindices[temp])
-            {
-               temp -= 1;
-            }
-            else
-            {
-               ++indices[temp];
-               break;
-            }
-         }
-         for (int l = k; l > temp; --l)
-         {
-            indices[l] = startindices[l];
-         }
-      }
-   }
-   
-   for (int i = 0; i < Pnum; ++i)
-   {
-      indices[i] = startindices[i];
-   }
-   
-   //For ensuring a column does not get added repeatedly
-   std::vector<bool> colin(S0,false);
-   //Temporary copy of the support vector, will modify it as mass is removed during greedy construction
-   std::vector<SuppPt> Psupp2(totalsupp);
-   std::copy(Psuppit, Psuppit+totalsupp, Psupp2.begin() );
-   //this method of winit is very memory inefficient
-   std::vector<double> winit(S0,0);
-   while (Psupp2[Psnum[0]-1].mass >1e-15)
-   {
-      double minmass = 1;
-      for (int i = 0; i < Pnum; ++i)
-      {
-         if (Psupp2[indices[i]].mass < minmass)
-         {
-            minmass = Psupp2[indices[i]].mass;
-         }
-      }
-      std::cout << "Minimum mass is " << minmass <<std::endl;
-      
-      long int loocur = S0;
-      int unki = 0;
-      int index = 0;
-      for (int i = 0; i < Pnum; ++i)
-      {
-         unsigned long int index2 = Psupp2[indices[i]].combos-index;
-         std::cout << Psupp2[indices[i]].combos << " " << index << std::endl;
-         std::cout << "Index in Pi: " << Psupp2[indices[i]].combos - index <<std::endl;
-         loocur /= Psnum[i];
-         unki += loocur*index2;
-         index += Psnum[i];
-         Psupp2[indices[i]].mass -= minmass;
-         if (Psupp2[indices[i]].mass <= 1e-15)
+         double diff1 =Pbar0.loc1-PsuppT[i][indices[i]].loc1;
+         double diff2 =Pbar0.loc2-PsuppT[i][indices[i]].loc2;
+         newc += lambda[i]*(diff1*diff1+diff2*diff2);
+         //Updating indices needed to be done later than previous code projects to allow for cost to be computed here
+         if (Psupp2[i][indices[i]].mass <= 1e-15)
          {
             ++indices[i];
          }
       }
-      for (int i = 0; i < Pnum; ++i)
-      {
-         std:: cout << Psupp2[indices[i]].mass << " ";
-      }
-      std::cout << std::endl;
       
-      std::cout << "current index is " << unki << " out of " << S0-1 <<std::endl;
-      winit[unki] = minmass;
+      w.push_back(model->addVar(0.0, GRB_INFINITY, newc, GRB_CONTINUOUS));
+      vbases.push_back(0);
+      
+      //Add variable to corresponding constraints
+      denom = S0/Psnum[0];
+      int startindex = Psnum[0];
+      int jindex = floor(h/denom);
+      exp[jindex] += *(w.end()-1);
+      for (int l = 1; l < Pnum-1; ++l)
+      {
+         denom /= Psnum[l];
+         jindex = startindex+floor( (h % (denom*Psnum[l]))/denom);
+         exp[jindex] += *(w.end()-1);
+         startindex += Psnum[l];
+      }
+      jindex = startindex+ h % Psnum[Pnum-1];
+      exp[jindex] += *(w.end()-1);
    }
-   
-   //Could now free up Psupp2
-   //Begin: build master problem from greedy solution
-   long int k = 0;
-   int jindex = 0;
-   long int Pprod;
-   std::vector<int> vbases;
-   double oldobj;
-   double newobj;
-    
-   for (std::vector<double>::iterator wit = winit.begin(); wit != winit.end(); ++wit)
+
+   index = 0;
+   for (int i = 0; i < Pnum; ++i)
    {
-         if (*wit != 0)
-         {
-            w.push_back(model->addVar(0.0, GRB_INFINITY, c[k], GRB_CONTINUOUS));//This updates the objective
-            vbases.push_back(0);
-            colin[k] = true;
-            Pprod = S0/Psnum[0];
-            jindex = floor(k/Pprod);
-            exp[jindex] += *(w.end()-1);
-            for (int l = 1; l < Pnum-1; ++l)
-            {
-               Pprod /= Psnum[l];
-               jindex = startindices[l]+floor( (k % (Pprod*Psnum[l]))/Pprod);
-               exp[jindex] += *(w.end()-1);
-            }
-            jindex = startindices[Pnum-1]+ k % Psnum[Pnum-1];
-            exp[jindex] += *(w.end()-1);
-         }
-      ++k;
+      for (int j = 0; j < Psnum[i]; ++j)
+      {
+         model->addConstr(exp[index] == PsuppT[i][j].mass);
+         ++index;
+      }
    }
-   for (int j = 0; j < totalsupp; ++j)
-   {
-      model->addConstr(exp[j] == Psupp[j].mass);
-   }
-   winit.resize(0);
    
    t = std::chrono::steady_clock::now();
    std::cout << "Setup Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t-start).count()  <<"ms" << std::endl;
@@ -412,8 +329,8 @@ int main(int argc, const char * argv[]) {
 
    //Create two sets of variables: 2-index and 4-index
    int Psmax = *std::max_element(Psnum, Psnum+Pnum);
-   std::vector< std::vector< GRBVar >> z2(Pnum, std::vector< GRBVar > ((Psmax)));
-   std::vector< std::vector< std::vector< std::vector< GRBVar >> >>z4(Pnum,std::vector< std::vector< std::vector< GRBVar >>>(Psmax, std::vector< std::vector< GRBVar >>(Pnum, std::vector< GRBVar >(Psmax))));
+   std::vector< std::vector< GRBVar >> z2(Pnum);
+   std::vector< std::vector< std::vector< std::vector< GRBVar >> >>z4(Pnum,std::vector< std::vector< std::vector< GRBVar >>>(Psmax, std::vector< std::vector< GRBVar >>(Pnum)));
    std::vector<int> vbasesp;
 
    //Create new constraints
@@ -445,7 +362,7 @@ int main(int argc, const char * argv[]) {
             }
       }
    }
-   //Add two-indexed variables to the LP
+   //Add two-indexed variables to the IP
    int currentconst = 0;
    int totalconstraints = 0;
    for (int i = 0; i < Pnum; ++i)
@@ -453,11 +370,18 @@ int main(int argc, const char * argv[]) {
       GRBLinExpr expp;
       for (int j = 0; j < Psnum[i]; ++j)
       {
-         std::stringstream name;
-         name << "z" << i+1 << "_" << j+1;
-         std::string name2;
-         name >> name2;
-         z2[i][j] = modelprice->addVar(0.0,GRB_INFINITY,1,GRB_BINARY,name2);// temp objective coefficient, will be updated in loop
+         if (namevars)
+         {
+            std::stringstream name;
+            name << "z" << i+1 << "_" << j+1;
+            std::string name2;
+            name >> name2;
+            z2[i].push_back( modelprice->addVar(0.0,GRB_INFINITY,1,GRB_BINARY,name2));// temp objective coefficient, will be updated in loop
+         }
+         else
+         {
+            z2[i].push_back( modelprice->addVar(0.0,GRB_INFINITY,1,GRB_BINARY));
+         }
          expp += z2[i][j];
          ++currentconst;
          vbasesp.push_back(0);
@@ -465,7 +389,6 @@ int main(int argc, const char * argv[]) {
       modelprice->addConstr(expp == 1);
       ++totalconstraints;
    }
-   std::cout << std::endl;
    //Now repeat for 4-indexed variables
    int constrcol = 0;
    for (int i = 0; i < Pnum-1; ++i)
@@ -476,12 +399,21 @@ int main(int argc, const char * argv[]) {
          {
             for (int m = 0; m < Psnum[j]; ++m)
             {
-               std::stringstream name;
-               name << "z" << i+1 <<"_" <<k+1 << "_" <<j+1 << "_" <<m+1;
-               std::string name2;
-               name >> name2;
-               double prod = 2*lambda[i]*lambda[j]*(PsuppT[i][k]*PsuppT[j][m]);
-               z4[i][k][j][m] = modelprice->addVar(0.0,GRB_INFINITY,prod,GRB_CONTINUOUS,name2);
+               if (namevars)
+               {
+                  std::stringstream name;
+                  name << "z" << i+1 <<"_" <<k+1 << "_" <<j+1 << "_" <<m+1;
+                  std::string name2;
+                  name >> name2;
+                  double prod = 2*lambda[i]*lambda[j]*(PsuppT[i][k]*PsuppT[j][m]);
+                  z4[i][k][j].push_back( modelprice->addVar(0.0,GRB_INFINITY,prod,GRB_CONTINUOUS,name2));
+                  
+               }
+               else
+               {
+                  double prod = 2*lambda[i]*lambda[j]*(PsuppT[i][k]*PsuppT[j][m]);
+                  z4[i][k][j].push_back( modelprice->addVar(0.0,GRB_INFINITY,prod,GRB_CONTINUOUS));
+               }
                expp2[constrcol]+= z4[i][k][j][m]-z2[i][k];
                ++constrcol;
                expp2[constrcol]+= z4[i][k][j][m]-z2[j][m];
@@ -518,7 +450,7 @@ int main(int argc, const char * argv[]) {
    filename2 << "/Users/spatterson/ForXcode/PricingLP/Pricing_test_inCG" << iter <<".lp";
    modelprice->write(filename2.str());*/
    
-   int maxiter = 8;//Pnum*10;
+   int maxiter = 10; //Pnum*5;
    bool isneg = true;
    while ( isneg )
    {
@@ -551,18 +483,25 @@ int main(int argc, const char * argv[]) {
             ++l;
          }
       }
-      if (colin[h] == 1)
+      if (checkcolfordup)
       {
-         std::cout << "Reintroducing same column." << std::endl;
-         break;
+         if (colin[h] == 1)
+         {
+            std::cout << "Reintroducing same column." << std::endl;
+            break;
+         }
       }
       
       //Add new column to master problem
       GRBColumn newcol;
       newcol.addTerms(expcoeff2, constrs, totalsupp);
-      w.push_back(model->addVar(0.0, GRB_INFINITY, c[h], GRB_CONTINUOUS, newcol));//This updates the objective
+      
+      //Compute newc here
+      double newc = compute_c(S0, Pnum, Psnum, PsuppT, h, lambda);
+      w.push_back(model->addVar(0.0, GRB_INFINITY, newc, GRB_CONTINUOUS, newcol));//This updates the objective
       vbases.push_back(-1);
-      colin[h] = true;
+      if (checkcolfordup)
+         colin[h] = true;
       if (warmstart == 1 )
       {
          model->update();
@@ -605,6 +544,11 @@ int main(int argc, const char * argv[]) {
    //      std::cout << currentobj << std::endl;
       double * yhat = model->get(GRB_DoubleAttr_Pi, model->getConstrs(), totalsupp);
 
+      //This option reduces the amount of memory used by Gurobi, but slows solution times significantly
+      modelprice->reset(1);
+      
+      
+      
       // add/update the coefficient on z[i][j]
       currentconst = 0;
       for (int i = 0; i < Pnum; ++i)
@@ -619,7 +563,9 @@ int main(int argc, const char * argv[]) {
             ++currentconst;
          }
       }
-/*      if (pwarmstart == 1)
+
+      /* //No discernable change in solving speeds with this reset
+      if (pwarmstart == 1)
       {
          for (int i = 0; i < Pnum-1; ++i)
          {
@@ -759,14 +705,14 @@ int makegreedy(std::vector<SuppPt> &Psupp2, std::vector<int> &Psnum2, int * Psnu
          }
       }
       
-      long int loocur = S0;
-      int unki = 0;
+      long int denom = S0;
+      int h = 0;
       int index = 0;
       for (int i = 0; i < Pnum; ++i)
       {
          unsigned long int index2 = Psupp2[indices[i]].combos-index;
-         loocur /= Psnum[i];
-         unki += loocur*index2;
+         denom /= Psnum[i];
+         h += denom*index2;
          index += Psnum[i];
          Psupp2[indices[i]].mass -= minmass;
          if (Psupp2[indices[i]].mass <= 1e-12)
@@ -775,7 +721,7 @@ int makegreedy(std::vector<SuppPt> &Psupp2, std::vector<int> &Psnum2, int * Psnu
          }
       }
       
-      winit[unki] = minmass;
+      winit[h] = minmass;
    }
    return 0;
 }
@@ -826,4 +772,51 @@ std::vector<double> dualtotals(const double * const yhat, const int Amrn, const 
       }
    }
    return ytotals;
+}
+
+//Function for computing the cost c associated with a particular combination
+//Implementation of Algorithm 1 from Column Generation paper
+//Inputs:
+//S0: product of sizes of measures
+//Pnum: number of measures
+//Psnum: number of support points per measure
+//Psupp: vector containing all support points
+//indices: vector containing indices of
+double compute_c(const long int &S0, const int &Pnum, const int * Psnum, const std::vector< std::vector<SuppPt> > &Psupp, const long int &h, const double * lambda)
+{
+   int index = 0;
+   int indices[Pnum];
+   long int denom = S0/Psnum[0];
+   index = floor(h/denom);
+   indices[0] = index;
+
+   double sum1 = 0;
+   double sum2 = 0;
+   sum1 += lambda[0]*Psupp[0][index].loc1;
+   sum2 += lambda[0]*Psupp[0][index].loc2;
+   for (int i = 1; i < Pnum-1; ++i)
+   {
+      denom /= Psnum[i];
+      index = floor((h%(denom*Psnum[i]))/denom);
+      indices[i] = index;
+
+            
+      sum1 += lambda[i]*Psupp[i][index].loc1;
+      sum2 += lambda[i]*Psupp[i][index].loc2;
+   }
+   index = h%Psnum[Pnum-1];
+   indices[Pnum-1] = index;
+   sum1 += lambda[Pnum-1]*Psupp[Pnum-1][index].loc1;
+   sum2 += lambda[Pnum-1]*Psupp[Pnum-1][index].loc2;
+
+   //Create a variable for this combination
+   double newc = 0;
+   SuppPt Pbar0 = SuppPt(sum1, sum2, 0.0);
+   for (int i = 0; i < Pnum; ++i)
+   {
+      double diff1 =Pbar0.loc1-Psupp[i][indices[i]].loc1;
+      double diff2 =Pbar0.loc2-Psupp[i][indices[i]].loc2;
+      newc += lambda[i]*(diff1*diff1+diff2*diff2);
+   }
+   return newc;
 }
